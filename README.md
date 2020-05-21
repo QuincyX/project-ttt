@@ -1,6 +1,6 @@
-# by_log_api
+# Project TTT
 
-[by log API](http://git.besmile.me/faggregation/log-api)
+TTT is short for Test Ta Tonight
 
 ## QuickStart
 
