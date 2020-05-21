@@ -7,20 +7,34 @@ module.exports = ({ mongoose }) => {
         required: true,
         trim: true,
       },
-      description: { type: String },
+      description: {
+        type: String,
+      },
       story: {
         type: String,
         ref: 'Story',
       },
-      trigger: { type: String, enum: ['手动', '定时', '计划', 'ops', 'git'] },
-      report: { type: String },
-      type: { type: String },
-      status: { type: String },
+      trigger: {
+        type: String,
+        enum: ['手动', '定时', '计划', 'ops', 'git'],
+      },
+      report: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      status: {
+        type: String,
+      },
       isEnable: {
         type: Boolean,
         default: true,
       },
-      createAt: { type: Date, default: Date.now },
+      createAt: {
+        type: Date,
+        default: Date.now,
+      },
     }),
     'Job'
   )

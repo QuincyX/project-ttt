@@ -7,7 +7,9 @@ module.exports = ({ mongoose }) => {
         required: true,
         trim: true
       },
-      description: { type: String },
+      description: {
+        type: String
+      },
       project: {
         type: String,
         ref: 'Project'
@@ -16,7 +18,10 @@ module.exports = ({ mongoose }) => {
         type: Boolean,
         default: true
       },
-      createAt: { type: Date, default: Date.now }
+      createAt: {
+        type: Date,
+        default: Date.now
+      }
     }),
     'ApiGroup'
   )

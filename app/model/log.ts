@@ -11,13 +11,21 @@ module.exports = ({ mongoose }) => {
         type: String,
         trim: true
       },
-      job: { type: String, ref: 'Job' },
+      job: {
+        type: String,
+        ref: 'Job'
+      },
       belongType: {
         type: String,
         enum: ['job', 'story', 'case', 'action', 'http', 'rule', 'sys']
       },
-      belongTo: { type: String },
-      createAt: { type: Date, default: Date.now }
+      belongTo: {
+        type: String
+      },
+      createAt: {
+        type: Date,
+        default: Date.now
+      }
     }),
     'Log'
   )

@@ -12,11 +12,22 @@ module.exports = ({ mongoose }) => {
         required: true,
         enum: ['swagger']
       },
-      version: { type: String },
-      description: { type: String },
-      host: { type: String },
-      basePath: { type: String },
-      createAt: { type: Date, default: Date.now }
+      version: {
+        type: String
+      },
+      description: {
+        type: String
+      },
+      host: {
+        type: String
+      },
+      basePath: {
+        type: String
+      },
+      createAt: {
+        type: Date,
+        default: Date.now
+      }
     }),
     'Project'
   )

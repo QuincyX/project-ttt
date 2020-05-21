@@ -7,17 +7,24 @@ module.exports = ({ mongoose }) => {
         required: true,
         trim: true,
       },
-      description: { type: String },
+      description: {
+        type: String,
+      },
       type: {
         type: String,
         enum: ['相等', '存在', '包含', '属于', '长度大于', '类型'],
       },
-      standard: { type: mongoose.Schema.Types.Mixed },
+      standard: {
+        type: mongoose.Schema.Types.Mixed,
+      },
       isEnable: {
         type: Boolean,
         default: true,
       },
-      createAt: { type: Date, default: Date.now },
+      createAt: {
+        type: Date,
+        default: Date.now,
+      },
     }),
     'Rule'
   )

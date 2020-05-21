@@ -5,21 +5,28 @@ module.exports = ({ mongoose }) => {
       name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
       },
-      description: { type: String },
+      description: {
+        type: String,
+      },
       actionList: [
         {
           type: String,
-          ref: 'Action'
-        }
+          ref: 'Action',
+        },
       ],
-      type: { type: String },
+      type: {
+        type: String,
+      },
       isEnable: {
         type: Boolean,
-        default: true
+        default: true,
       },
-      createAt: { type: Date, default: Date.now }
+      createAt: {
+        type: Date,
+        default: Date.now,
+      },
     }),
     'Case'
   )

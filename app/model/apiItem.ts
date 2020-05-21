@@ -15,10 +15,18 @@ module.exports = ({ mongoose }) => {
         required: true,
         trim: true
       },
-      url: { type: String },
-      method: { type: String },
-      description: { type: String },
-      operationId: { type: String },
+      url: {
+        type: String
+      },
+      method: {
+        type: String
+      },
+      description: {
+        type: String
+      },
+      operationId: {
+        type: String
+      },
       query: [paramSchema],
       body: [paramSchema],
       header: [paramSchema],
@@ -39,7 +47,10 @@ module.exports = ({ mongoose }) => {
         type: Boolean,
         default: true
       },
-      createAt: { type: Date, default: Date.now }
+      createAt: {
+        type: Date,
+        default: Date.now
+      }
     }),
     'ApiItem'
   )

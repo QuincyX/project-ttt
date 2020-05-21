@@ -7,7 +7,9 @@ module.exports = ({ mongoose }) => {
         required: true,
         trim: true
       },
-      description: { type: String },
+      description: {
+        type: String
+      },
       api: {
         type: String,
         ref: 'ApiItem'
@@ -57,12 +59,17 @@ module.exports = ({ mongoose }) => {
           }
         }
       ],
-      type: { type: String },
+      type: {
+        type: String
+      },
       isEnable: {
         type: Boolean,
         default: true
       },
-      createAt: { type: Date, default: Date.now }
+      createAt: {
+        type: Date,
+        default: Date.now
+      }
     }),
     'Action'
   )

@@ -34,7 +34,7 @@ export default class extends Service {
         type: 'success',
         title: '开始讲故事',
       })
-      await this.ctx.service.job.triggerCaseList(story.caseList, jobId)
+      await this.ctx.service.job.triggerCaseList(story.caseList, storyId, jobId)
       this.ctx.service.log.add({
         job: jobId,
         belongType: 'story',
@@ -45,15 +45,19 @@ export default class extends Service {
       resolve()
     })
   }
-  public async triggerCaseList(caseList: string[], jobId: string) {
+  public async triggerCaseList(
+    caseList: string[],
+    storyId: string,
+    jobId: string
+  ) {
     let awaitList: Array<any> = []
     for (let o of caseList) {
-      let data: any = await this.ctx.service.job.triggerCase(o, jobId)
+      let data: any = await this.ctx.service.job.triggerCase(o, storyId, jobId)
       awaitList.push(data)
     }
     return awaitList
   }
-  public async triggerCase(caseId: string, jobId: string) {
+  public async triggerCase(caseId: string, storyId: string, jobId: string) {
     const caseDoc = await this.ctx.model.Case.findById(caseId)
     this.ctx.service.log.add({
       job: jobId,
@@ -62,7 +66,12 @@ export default class extends Service {
       type: 'success',
       title: '开始执行 case',
     })
-    await this.ctx.service.job.triggerActionList(caseDoc.actionList, jobId)
+    await this.ctx.service.job.triggerActionList(
+      caseDoc.actionList,
+      caseDoc._id,
+      storyId,
+      jobId
+    )
     this.ctx.service.log.add({
       job: jobId,
       belongType: 'case',
@@ -72,22 +81,62 @@ export default class extends Service {
     })
     return
   }
-  public async triggerActionList(actionList: string[], jobId: string) {
+  public async triggerActionList(
+    actionList: string[],
+    caseId: string,
+    storyId: string,
+    jobId: string
+  ) {
     let awaitList: Array<any> = []
     for (let o of actionList) {
-      let data: any = await this.ctx.service.job.triggerAction(o, jobId)
+      let data: any = await this.ctx.service.job.triggerAction(
+        o,
+        caseId,
+        storyId,
+        jobId
+      )
       awaitList.push(data)
     }
     return awaitList
   }
-  public async triggerAction(actionId: string, jobId: string) {
+  public async triggerAction(
+    actionId: string,
+    caseId: string,
+    storyId: string,
+    jobId: string
+  ) {
     const actionDoc = await this.ctx.model.Action.findById(actionId)
     const apiDoc = await this.ctx.model.ApiItem.findById(actionDoc.api)
     const projectDoc = await this.ctx.model.Project.findById(apiDoc.project)
-    const headers = await this.ctx.service.mock.getHeader(actionDoc.header)
-    const query = await this.ctx.service.mock.getQuery(actionDoc.query)
-    const body = await this.ctx.service.mock.getBody(actionDoc.body)
-    const path = await this.ctx.service.mock.getPath(apiDoc.url, actionDoc.path)
+    const headers = await this.ctx.service.mock.getHeader(
+      actionDoc.header,
+      actionId,
+      caseId,
+      storyId,
+      jobId
+    )
+    const query = await this.ctx.service.mock.getQuery(
+      actionDoc.query,
+      actionId,
+      caseId,
+      storyId,
+      jobId
+    )
+    const body = await this.ctx.service.mock.getBody(
+      actionDoc.body,
+      actionId,
+      caseId,
+      storyId,
+      jobId
+    )
+    const path = await this.ctx.service.mock.getPath(
+      apiDoc.url,
+      actionDoc.path,
+      actionId,
+      caseId,
+      storyId,
+      jobId
+    )
 
     this.ctx.service.log.add({
       job: jobId,
