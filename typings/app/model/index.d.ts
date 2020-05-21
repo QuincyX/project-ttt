@@ -11,6 +11,7 @@ import ExportJob from '../../../app/model/job';
 import ExportLog from '../../../app/model/log';
 import ExportMock from '../../../app/model/mock';
 import ExportProject from '../../../app/model/project';
+import ExportRule from '../../../app/model/rule';
 import ExportStory from '../../../app/model/story';
 
 declare module 'egg' {
@@ -24,6 +25,7 @@ declare module 'egg' {
     Log: ReturnType<typeof ExportLog>;
     Mock: ReturnType<typeof ExportMock>;
     Project: ReturnType<typeof ExportProject>;
+    Rule: ReturnType<typeof ExportRule>;
     Story: ReturnType<typeof ExportStory>;
   }
 }

@@ -48,6 +48,15 @@ module.exports = ({ mongoose }) => {
           }
         }
       ],
+      rule: [
+        {
+          name: String,
+          rule: {
+            type: String,
+            ref: 'Rule'
+          }
+        }
+      ],
       type: { type: String },
       isEnable: {
         type: Boolean,

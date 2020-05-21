@@ -32,8 +32,12 @@ export default class extends Service {
         return Promise.resolve(response.data.data || response.data)
       },
       (error: AxiosError) => {
-        console.log('response error')
-        console.log(error)
+        this.ctx.service.log.add({
+          belongType: 'http',
+          belongTo: `${error.config.method} ${error.config.url}`,
+          type: 'error',
+          content: error.toJSON(),
+        })
         return Promise.reject(error)
       }
     )
