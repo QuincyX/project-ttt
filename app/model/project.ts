@@ -9,7 +9,8 @@ module.exports = ({ mongoose }) => {
       },
       type: {
         type: String,
-        required: true
+        required: true,
+        enum: ['swagger']
       },
       version: { type: String },
       description: { type: String },

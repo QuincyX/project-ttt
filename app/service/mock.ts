@@ -7,7 +7,7 @@ export default class extends Service {
     return mockDoc.list[randomIndex]
   }
   public async getHeader(headerList: any[]) {
-    const headerListMock = await Promise.all(
+    const list = await Promise.all(
       headerList.map(async (o) => {
         return {
           name: o.name,
@@ -15,10 +15,54 @@ export default class extends Service {
         }
       })
     )
-    const headerObject = {}
-    headerListMock.forEach((o) => {
-      headerObject[o.name] = o.value
+    const result = {}
+    list.forEach((o) => {
+      result[o.name] = o.value
     })
-    return headerObject
+    return result
+  }
+  public async getQuery(queryList: any[]) {
+    const list = await Promise.all(
+      queryList.map(async (o) => {
+        return {
+          name: o.name,
+          value: await this.ctx.service.mock.getMock(o.mock),
+        }
+      })
+    )
+    const result = {}
+    list.forEach((o) => {
+      result[o.name] = o.value
+    })
+    return result
+  }
+  public async getBody(bodyList: any[]) {
+    const list = await Promise.all(
+      bodyList.map(async (o) => {
+        return {
+          name: o.name,
+          value: await this.ctx.service.mock.getMock(o.mock),
+        }
+      })
+    )
+    const result = {}
+    list.forEach((o) => {
+      result[o.name] = o.value
+    })
+    return result
+  }
+  public async getPath(sourceUrl: string, pathList: any[]) {
+    const list = await Promise.all(
+      pathList.map(async (o) => {
+        return {
+          name: o.name,
+          value: await this.ctx.service.mock.getMock(o.mock),
+        }
+      })
+    )
+    list.forEach((o) => {
+      sourceUrl = sourceUrl.replace(`{${o.name}}`, o.value)
+    })
+    return sourceUrl
   }
 }

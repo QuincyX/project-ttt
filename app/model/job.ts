@@ -12,7 +12,7 @@ module.exports = ({ mongoose }) => {
         type: String,
         ref: 'Story',
       },
-      trigger: { type: String },
+      trigger: { type: String, enum: ['手动', '定时', '计划', 'ops', 'git'] },
       report: { type: String },
       type: { type: String },
       status: { type: String },

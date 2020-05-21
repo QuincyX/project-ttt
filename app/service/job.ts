@@ -46,12 +46,12 @@ export default class extends Service {
     })
   }
   public async triggerCaseList(caseList: string[], jobId: string) {
-    let res: Array<any> = []
+    let awaitList: Array<any> = []
     for (let o of caseList) {
       let data: any = await this.ctx.service.job.triggerCase(o, jobId)
-      res.push(data)
+      awaitList.push(data)
     }
-    return await res
+    return awaitList
   }
   public async triggerCase(caseId: string, jobId: string) {
     const caseDoc = await this.ctx.model.Case.findById(caseId)
@@ -73,18 +73,21 @@ export default class extends Service {
     return
   }
   public async triggerActionList(actionList: string[], jobId: string) {
-    let res: Array<any> = []
+    let awaitList: Array<any> = []
     for (let o of actionList) {
       let data: any = await this.ctx.service.job.triggerAction(o, jobId)
-      res.push(data)
+      awaitList.push(data)
     }
-    return await res
+    return awaitList
   }
   public async triggerAction(actionId: string, jobId: string) {
     const actionDoc = await this.ctx.model.Action.findById(actionId)
     const apiDoc = await this.ctx.model.ApiItem.findById(actionDoc.api)
     const projectDoc = await this.ctx.model.Project.findById(apiDoc.project)
     const headers = await this.ctx.service.mock.getHeader(actionDoc.header)
+    const query = await this.ctx.service.mock.getQuery(actionDoc.query)
+    const body = await this.ctx.service.mock.getBody(actionDoc.body)
+    const path = await this.ctx.service.mock.getPath(apiDoc.url, actionDoc.path)
 
     this.ctx.service.log.add({
       job: jobId,
@@ -96,8 +99,11 @@ export default class extends Service {
     const result = await this.ctx.service.http
       .axios({
         method: apiDoc.method,
-        url: `http://${projectDoc.host}${apiDoc.url}`,
+        baseURL: `http://${projectDoc.host}`,
+        url: path,
         headers,
+        params: query,
+        data: body,
       })
       .then((response) => {
         this.ctx.service.log.add({
@@ -118,6 +124,7 @@ export default class extends Service {
           type: 'success',
           title: '执行完成 action',
         })
+        return
       })
       .catch((error) => {
         this.ctx.service.log.add({
@@ -139,7 +146,7 @@ export default class extends Service {
       type: 'success',
       title: '开始执行 action rule validate',
     })
-    let res: Array<any> = []
+    let awaitList: Array<any> = []
     for (let o of action.rule) {
       let data: any = await this.ctx.service.job.validateRule(
         o,
@@ -147,9 +154,9 @@ export default class extends Service {
         response,
         jobId
       )
-      res.push(data)
+      awaitList.push(data)
     }
-    return await res
+    return awaitList
   }
   public async validateRule(
     rule: any,
@@ -158,47 +165,95 @@ export default class extends Service {
     jobId: string
   ) {
     const ruleDoc = await this.ctx.model.Rule.findById(rule.rule)
+    const targetValue = this.ctx.service.job.getResponseValue(
+      response,
+      rule.name
+    )
     if (ruleDoc.type === '相等') {
-      const targetValue = this.ctx.service.job.getResponseValue(
-        response,
-        rule.name,
-        action._id,
-        jobId
-      )
       if (targetValue != ruleDoc.standard) {
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: 'action rule validate error',
-          content: `${rule.name} 与 ${ruleDoc.standard} 对比不相等`,
+          title: `validate ${rule.name} 相等`,
+          content: `${rule.name} 的值 ${targetValue} 与 ${ruleDoc.standard} 对比不相等`,
         })
       }
+    } else if (ruleDoc.type === '存在') {
+      if (typeof targetValue === 'undefined') {
+        this.ctx.service.log.add({
+          job: jobId,
+          belongType: 'action',
+          belongTo: action._id,
+          type: 'error',
+          title: `validate ${rule.name} 存在`,
+          content: `${targetValue} 值不存在`,
+        })
+      }
+    } else if (ruleDoc.type === '包含') {
+      if (!targetValue.includes(ruleDoc.standard)) {
+        this.ctx.service.log.add({
+          job: jobId,
+          belongType: 'action',
+          belongTo: action._id,
+          type: 'error',
+          title: `validate ${rule.name} 包含`,
+          content: `${rule.name} 的值 ${targetValue} 不包含 ${ruleDoc.standard}`,
+        })
+      }
+    } else if (ruleDoc.type === '属于') {
+      if (!ruleDoc.standard.includes(targetValue)) {
+        this.ctx.service.log.add({
+          job: jobId,
+          belongType: 'action',
+          belongTo: action._id,
+          type: 'error',
+          title: `validate ${rule.name} 属于`,
+          content: `${rule.name} 的值 ${targetValue} 不属于 ${ruleDoc.standard}`,
+        })
+      }
+    } else if (ruleDoc.type === '长度大于') {
+      if (targetValue.length <= ruleDoc.standard) {
+        this.ctx.service.log.add({
+          job: jobId,
+          belongType: 'action',
+          belongTo: action._id,
+          type: 'error',
+          title: `validate ${rule.name} 长度大于`,
+          content: `${rule.name} 的长度 ${targetValue.length} 不大于 ${ruleDoc.standard}`,
+        })
+      }
+    } else if (ruleDoc.type === '类型') {
+      if (typeof targetValue === ruleDoc.standard) {
+        this.ctx.service.log.add({
+          job: jobId,
+          belongType: 'action',
+          belongTo: action._id,
+          type: 'error',
+          title: `validate ${rule.name} 类型`,
+          content: `${rule.name} 的类型 ${typeof targetValue} 不等于 ${
+            ruleDoc.standard
+          }`,
+        })
+      }
+    } else {
+      this.ctx.service.log.add({
+        job: jobId,
+        belongType: 'sys',
+        type: 'error',
+        title: `${rule.name} 的验证规则 ${ruleDoc.type} 未定义`,
+      })
     }
     return
   }
-  public getResponseValue(
-    response: any,
-    keyName: string,
-    actionId: string,
-    jobId: string
-  ) {
+  public getResponseValue(response: any, keyName: string) {
     let keywordArray = keyName.split('.')
     let result = response
     keywordArray.forEach((o) => {
       result = result[o]
-      if (typeof result === 'undefined') {
-        this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'rule',
-          belongTo: actionId,
-          type: 'error',
-          title: 'action rule validate error',
-          content: `${result} 值不存在`,
-        })
-      }
     })
+
     return result
   }
 }
