@@ -5,7 +5,7 @@ module.exports = ({ mongoose }) => {
       name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
       },
       description: { type: String },
       story: {
@@ -15,6 +15,7 @@ module.exports = ({ mongoose }) => {
       trigger: { type: String },
       report: { type: String },
       type: { type: String },
+      status: { type: String },
       isEnable: {
         type: Boolean,
         default: true,

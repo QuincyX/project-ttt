@@ -27,26 +27,31 @@ export default class extends baseController {
   }
   public async create() {
     const payload = this.ctx.request.body
-    const newDoc = await this.model.create({ ...payload })
-    this.ctx.service.log.add({
-      job: newDoc._id,
-      belongType: 'job',
-      belongTo: newDoc._id,
-      type: 'success',
-      content: 'job 创建成功',
+    const job: any = await this.model.create({
+      ...payload,
+      status: '进行中',
     })
-    const result = await this.ctx.service.job.triggerStory(
-      payload.story,
-      newDoc._id
-    )
     this.ctx.service.log.add({
-      job: newDoc._id,
+      job: job._id,
       belongType: 'job',
-      belongTo: newDoc._id,
+      belongTo: job._id,
       type: 'success',
-      content: 'job 执行完成',
+      title: 'job 创建成功',
     })
-    this.success({ newDoc, result })
+    await this.ctx.service.job.triggerStory(payload.story, job._id)
+    job.status = '已完成'
+    await job.save()
+    this.ctx.service.log.add({
+      job: job._id,
+      belongType: 'job',
+      belongTo: job._id,
+      type: 'success',
+      title: 'job 执行完成',
+    })
+    const log = await this.ctx.model.Log.find({
+      job: job._id,
+    })
+    this.success({ job, log })
   }
   public async update() {
     const payload = this.ctx.request.body
