@@ -17,33 +17,40 @@ export default class extends Service {
       return mockDoc.list[randomIndex]
     }
   }
-  public async getMockId(
-    name: string,
-    actionId: string,
-    caseId: string,
-    storyId: string,
-    jobId: string,
+  public async getMockId({
+    name,
+    actionId,
+    caseId,
+    storyId,
+    jobId,
+    mockId,
+  }: {
+    name: string
+    actionId: string
+    caseId: string
+    storyId: string
+    jobId: string
     mockId: string
-  ) {
-    const actionMock: any = await this.ctx.model.Mock.find({
+  }) {
+    const actionMock: any = await this.ctx.model.Mock.findOne({
       name,
       type: 'action',
-      parent: actionId,
+      target: actionId,
     })
-    const caseMock: any = await this.ctx.model.Mock.find({
+    const caseMock: any = await this.ctx.model.Mock.findOne({
       name,
       type: 'case',
-      parent: caseId,
+      target: caseId,
     })
-    const storyMock: any = await this.ctx.model.Mock.find({
+    const storyMock: any = await this.ctx.model.Mock.findOne({
       name,
       type: 'story',
-      parent: storyId,
+      target: storyId,
     })
-    const jobMock: any = await this.ctx.model.Mock.find({
+    const jobMock: any = await this.ctx.model.Mock.findOne({
       name,
       type: 'job',
-      parent: jobId,
+      target: jobId,
     })
     if (actionMock) {
       return actionMock._id
@@ -66,14 +73,14 @@ export default class extends Service {
   ) {
     const list = await Promise.all(
       headerList.map(async (o) => {
-        const mockId = await this.ctx.service.mock.getMockId(
-          o.name,
+        const mockId = await this.ctx.service.mock.getMockId({
+          name: o.name,
           actionId,
           caseId,
           storyId,
           jobId,
-          o.mock
-        )
+          mockId: o.mock,
+        })
         return {
           name: o.name,
           value: await this.ctx.service.mock.getMock(mockId),
@@ -95,14 +102,14 @@ export default class extends Service {
   ) {
     const list = await Promise.all(
       queryList.map(async (o) => {
-        const mockId = await this.ctx.service.mock.getMockId(
-          o.name,
+        const mockId = await this.ctx.service.mock.getMockId({
+          name: o.name,
           actionId,
           caseId,
           storyId,
           jobId,
-          o.mock
-        )
+          mockId: o.mock,
+        })
         return {
           name: o.name,
           value: await this.ctx.service.mock.getMock(mockId),
@@ -124,14 +131,14 @@ export default class extends Service {
   ) {
     const list = await Promise.all(
       bodyList.map(async (o) => {
-        const mockId = await this.ctx.service.mock.getMockId(
-          o.name,
+        const mockId = await this.ctx.service.mock.getMockId({
+          name: o.name,
           actionId,
           caseId,
           storyId,
           jobId,
-          o.mock
-        )
+          mockId: o.mock,
+        })
         return {
           name: o.name,
           value: await this.ctx.service.mock.getMock(mockId),
@@ -154,14 +161,14 @@ export default class extends Service {
   ) {
     const list = await Promise.all(
       pathList.map(async (o) => {
-        const mockId = await this.ctx.service.mock.getMockId(
-          o.name,
+        const mockId = await this.ctx.service.mock.getMockId({
+          name: o.name,
           actionId,
           caseId,
           storyId,
           jobId,
-          o.mock
-        )
+          mockId: o.mock,
+        })
         return {
           name: o.name,
           value: await this.ctx.service.mock.getMock(mockId),

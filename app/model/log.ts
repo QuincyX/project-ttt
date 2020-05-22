@@ -17,7 +17,16 @@ module.exports = ({ mongoose }) => {
       },
       belongType: {
         type: String,
-        enum: ['job', 'story', 'case', 'action', 'http', 'rule', 'sys']
+        enum: [
+          'job',
+          'story',
+          'case',
+          'action',
+          'http',
+          'rule',
+          'output',
+          'sys'
+        ]
       },
       belongTo: {
         type: String

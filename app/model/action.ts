@@ -59,6 +59,14 @@ module.exports = ({ mongoose }) => {
           }
         }
       ],
+      output: [
+        {
+          targetType: String,
+          target: String,
+          name: String,
+          source: String
+        }
+      ],
       type: {
         type: String
       },

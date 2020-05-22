@@ -16,7 +16,7 @@ module.exports = ({ mongoose }) => {
         type: String,
         enum: ['global', 'job', 'story', 'case', 'action'],
       },
-      parent: {
+      target: {
         type: String,
       },
       list: [

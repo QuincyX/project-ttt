@@ -154,7 +154,7 @@ export default class extends Service {
         params: query,
         data: body,
       })
-      .then((response) => {
+      .then(async (response) => {
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'http',
@@ -163,7 +163,9 @@ export default class extends Service {
           title: `status: ${response.status}`,
           content: JSON.stringify(response.data).substring(0, 300),
         })
-        return this.ctx.service.job.validateRuleList(actionDoc, response, jobId)
+        await this.ctx.service.job.validateRuleList(actionDoc, response, jobId)
+        await this.ctx.service.job.handleOutputList(actionDoc, response, jobId)
+        return response
       })
       .then(() => {
         this.ctx.service.log.add({
@@ -180,8 +182,8 @@ export default class extends Service {
           job: jobId,
           belongType: 'http',
           type: 'error',
-          title: `${error.config.method} ${error.config.url}`,
-          content: error.toJSON(),
+          title: `${error?.config?.method} ${error?.config?.url}`,
+          content: error.toString(),
         })
       })
 
@@ -228,6 +230,8 @@ export default class extends Service {
           title: `validate ${rule.name} 相等`,
           content: `${rule.name} 的值 ${targetValue} 与 ${ruleDoc.standard} 对比不相等`,
         })
+      } else {
+        return
       }
     } else if (ruleDoc.type === '存在') {
       if (typeof targetValue === 'undefined') {
@@ -239,6 +243,8 @@ export default class extends Service {
           title: `validate ${rule.name} 存在`,
           content: `${targetValue} 值不存在`,
         })
+      } else {
+        return
       }
     } else if (ruleDoc.type === '包含') {
       if (!targetValue.includes(ruleDoc.standard)) {
@@ -250,6 +256,8 @@ export default class extends Service {
           title: `validate ${rule.name} 包含`,
           content: `${rule.name} 的值 ${targetValue} 不包含 ${ruleDoc.standard}`,
         })
+      } else {
+        return
       }
     } else if (ruleDoc.type === '属于') {
       if (!ruleDoc.standard.includes(targetValue)) {
@@ -261,6 +269,8 @@ export default class extends Service {
           title: `validate ${rule.name} 属于`,
           content: `${rule.name} 的值 ${targetValue} 不属于 ${ruleDoc.standard}`,
         })
+      } else {
+        return
       }
     } else if (ruleDoc.type === '长度大于') {
       if (targetValue.length <= ruleDoc.standard) {
@@ -272,6 +282,8 @@ export default class extends Service {
           title: `validate ${rule.name} 长度大于`,
           content: `${rule.name} 的长度 ${targetValue.length} 不大于 ${ruleDoc.standard}`,
         })
+      } else {
+        return
       }
     } else if (ruleDoc.type === '类型') {
       if (typeof targetValue === ruleDoc.standard) {
@@ -285,6 +297,8 @@ export default class extends Service {
             ruleDoc.standard
           }`,
         })
+      } else {
+        return
       }
     } else {
       this.ctx.service.log.add({
@@ -294,7 +308,57 @@ export default class extends Service {
         title: `${rule.name} 的验证规则 ${ruleDoc.type} 未定义`,
       })
     }
-    return
+  }
+  public async handleOutputList(action: any, response: any, jobId: string) {
+    if (action.output.length) {
+      this.ctx.service.log.add({
+        job: jobId,
+        belongType: 'action',
+        belongTo: action._id,
+        type: 'success',
+        title: `开始执行 output handle ,共 ${action.output.length} 个`,
+      })
+    }
+    let awaitList: Array<any> = []
+    for (let o of action.output) {
+      let data: any = await this.ctx.service.job.handleOutput(
+        o,
+        action,
+        response,
+        jobId
+      )
+      awaitList.push(data)
+    }
+    return awaitList
+  }
+  public async handleOutput(
+    output: any,
+    action: any,
+    response: any,
+    jobId: string
+  ) {
+    const newMock = await this.ctx.model.Mock.updateOne(
+      {
+        name: output.name,
+        type: output.targetType,
+        target: output.target,
+      },
+      {
+        name: output.name,
+        type: output.targetType,
+        target: output.target,
+        list: [this.ctx.service.job.getResponseValue(response, output.source)],
+      },
+      { upsert: true }
+    )
+    this.ctx.service.log.add({
+      job: jobId,
+      belongType: 'output',
+      belongTo: action._id,
+      type: 'success',
+      title: `执行成功 output ${output.name}`,
+    })
+    return newMock
   }
   public getResponseValue(response: any, keyName: string) {
     let keywordArray = keyName.split('.')
@@ -302,7 +366,6 @@ export default class extends Service {
     keywordArray.forEach((o) => {
       result = result[o]
     })
-
     return result
   }
 }

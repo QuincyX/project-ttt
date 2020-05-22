@@ -33,7 +33,7 @@ export default class extends baseController {
   public async update() {
     const payload = this.ctx.request.body
     const _id = this.ctx.params.id
-    const newDoc = await this.model.findOneAndUpdate({ _id }, { ...payload })
+    const newDoc = await this.model.findByIdAndUpdate(_id, { ...payload })
     this.success(newDoc)
   }
   public async destroy() {
