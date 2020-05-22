@@ -5,6 +5,25 @@ export default class extends baseController {
     super(app)
     this.model = this.ctx.model['Mock']
   }
+  public async addMockListItem() {
+    const payload = this.ctx.request.body
+    const _id = this.ctx.params.id
+    const doc: any = await this.model.findById(_id)
+    if (doc && payload.newItem) {
+      doc.list.push(payload.newItem)
+      await doc.save()
+    }
+    this.success(doc)
+  }
+  public async deleteMockListItem() {
+    const _id = this.ctx.params.id
+    const item = this.ctx.params.item
+    const delDoc: any = await this.model.findById(_id)
+    const deleteIndex = delDoc.list.findIndex((o) => o === item)
+    delDoc.list.splice(deleteIndex, 1)
+    await delDoc.save()
+    this.success(delDoc)
+  }
   public async index() {
     let { findQuery, pageQuery, sortQuery } = this.ctx.helper.getQuery(
       this.ctx.query
