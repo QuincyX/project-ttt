@@ -161,7 +161,16 @@ export default class extends Service {
           belongTo: `${response.config.method} ${response.config.url}`,
           type: 'success',
           title: `status: ${response.status}`,
-          content: JSON.stringify(response.data).substring(0, 300),
+          content: {
+            req: {
+              method: response.config.method,
+              url: response.config.url,
+              headers,
+              query,
+              body,
+            },
+            res: response.data,
+          },
         })
         await this.ctx.service.job.validateRuleList(actionDoc, response, jobId)
         await this.ctx.service.job.handleOutputList(actionDoc, response, jobId)
@@ -227,7 +236,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: `validate ${rule.name} 相等`,
+          title: `validate => ${rule.name} 相等`,
           content: `${rule.name} 的值 ${targetValue} 与 ${ruleDoc.standard} 对比不相等`,
         })
       } else {
@@ -240,7 +249,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: `validate ${rule.name} 存在`,
+          title: `validate => ${rule.name} 存在`,
           content: `${targetValue} 值不存在`,
         })
       } else {
@@ -253,7 +262,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: `validate ${rule.name} 包含`,
+          title: `validate => ${rule.name} 包含`,
           content: `${rule.name} 的值 ${targetValue} 不包含 ${ruleDoc.standard}`,
         })
       } else {
@@ -266,7 +275,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: `validate ${rule.name} 属于`,
+          title: `validate => ${rule.name} 属于`,
           content: `${rule.name} 的值 ${targetValue} 不属于 ${ruleDoc.standard}`,
         })
       } else {
@@ -279,7 +288,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: `validate ${rule.name} 长度大于`,
+          title: `validate => ${rule.name} 长度大于`,
           content: `${rule.name} 的长度 ${targetValue.length} 不大于 ${ruleDoc.standard}`,
         })
       } else {
@@ -292,7 +301,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: action._id,
           type: 'error',
-          title: `validate ${rule.name} 类型`,
+          title: `validate => ${rule.name} 类型`,
           content: `${rule.name} 的类型 ${typeof targetValue} 不等于 ${
             ruleDoc.standard
           }`,
@@ -344,6 +353,7 @@ export default class extends Service {
         target: output.target,
       },
       {
+        description: `由 action ${action._id} 自动生成的数据规则`,
         name: output.name,
         type: output.targetType,
         target: output.target,

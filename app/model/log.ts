@@ -8,8 +8,7 @@ module.exports = ({ mongoose }) => {
         trim: true
       },
       content: {
-        type: String,
-        trim: true
+        type: mongoose.Schema.Types.Mixed
       },
       job: {
         type: String,

@@ -7,21 +7,22 @@ export default class extends baseController {
   }
   public async index() {
     let query: any = { ...this.ctx.query }
-    const page = {
-      page: Number(this.ctx.query.page) || 1,
-      size: Number(this.ctx.query.size) || 10,
+    let { page, size, total, sort, ...findQuery } = query
+    const pageQuery = {
+      page: Number(page) || 1,
+      size: Number(size) || 10,
       total: await this.model
-        .find(query)
+        .find(findQuery)
         .countDocuments()
         .exec()
     }
     const list = await this.model
-      .find(query)
-      .sort(this.ctx.query.sort || '-createAt')
-      .skip(page.size * (page.page - 1))
-      .limit(page.size)
+      .find(findQuery)
+      .sort(sort || '-createAt')
+      .skip(pageQuery.size * (pageQuery.page - 1))
+      .limit(pageQuery.size)
       .exec()
-    this.success(list, page)
+    this.success(list, pageQuery)
   }
   public async show() {
     const doc = await this.model.findById(this.ctx.params.id)
