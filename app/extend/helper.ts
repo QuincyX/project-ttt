@@ -33,7 +33,7 @@ module.exports = {
     let filterQuery = {}
     for (let k in findQuery) {
       if (findQuery[k] || findQuery[k] === false) {
-        filterQuery[k] = filterQuery[k]
+        filterQuery[k] = findQuery[k]
       }
     }
     return { findQuery: filterQuery, pageQuery, sortQuery: sort }
