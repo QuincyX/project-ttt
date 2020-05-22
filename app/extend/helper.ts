@@ -23,6 +23,21 @@ module.exports = {
     this.ctx.status = 200
     throw new NotError()
   },
+  getQuery(query) {
+    const { page, size, total, sort, ...findQuery } = query
+    const pageQuery = {
+      page: Number(page) || 1,
+      size: Number(size) || 10,
+      total: 0,
+    }
+    let filterQuery = {}
+    for (let k in findQuery) {
+      if (findQuery[k] || findQuery[k] === false) {
+        filterQuery[k] = filterQuery[k]
+      }
+    }
+    return { findQuery: filterQuery, pageQuery, sortQuery: sort }
+  },
 }
 class NotError extends Error {
   // force end the current request

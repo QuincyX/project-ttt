@@ -6,16 +6,13 @@ export default class extends baseController {
     this.model = this.ctx.model['Mock']
   }
   public async index() {
-    let query: any = { ...this.ctx.query }
-    let { page, size, total, sort, ...findQuery } = query
-    const pageQuery = {
-      page: Number(page) || 1,
-      size: Number(size) || 10,
-      total: await this.model.find(findQuery).countDocuments().exec(),
-    }
+    let { findQuery, pageQuery, sortQuery } = this.ctx.helper.getQuery(
+      this.ctx.query
+    )
+    pageQuery.total = await this.model.find(findQuery).countDocuments().exec()
     const list = await this.model
       .find(findQuery)
-      .sort(sort || '-createAt')
+      .sort(sortQuery || '-createAt')
       .skip(pageQuery.size * (pageQuery.page - 1))
       .limit(pageQuery.size)
       .exec()
