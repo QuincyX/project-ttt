@@ -23,6 +23,14 @@ module.exports = {
     this.ctx.status = 200
     throw new NotError()
   },
+  message(text: string) {
+    this.ctx.body = {
+      err: 0,
+      message: text,
+    }
+    this.ctx.status = 200
+    throw new NotError()
+  },
   getQuery(query) {
     const { page, size, total, sort, ...findQuery } = query
     const pageQuery = {

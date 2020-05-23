@@ -59,7 +59,8 @@ export default class extends baseController {
   }
   public async destroy() {
     const _id = this.ctx.params.id
-    const delDoc = await this.model.findByIdAndDelete(_id)
-    this.success(delDoc)
+    const delDoc: any = await this.model.findByIdAndDelete(_id)
+    const delLog = await this.ctx.model.Log.remove({ job: _id })
+    this.message(`${delDoc.name} 删除成功，${delLog.deletedCount}条日志`)
   }
 }
