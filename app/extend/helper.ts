@@ -27,7 +27,7 @@ module.exports = {
     const { page, size, total, sort, ...findQuery } = query
     const pageQuery = {
       page: Number(page) || 1,
-      size: Number(size) || 10,
+      size: Number(size),
       total: 0,
     }
     let filterQuery = {}
@@ -48,4 +48,5 @@ class NotError extends Error {
 interface Page {
   page: Number
   size: Number
+  total?: Number
 }

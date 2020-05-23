@@ -43,6 +43,7 @@ export default class extends baseController {
   }
   public async create() {
     const payload = this.ctx.request.body
+    delete payload._id
     const newDoc = await this.model.create({ ...payload })
     this.success(newDoc)
   }
