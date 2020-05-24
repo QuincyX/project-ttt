@@ -32,7 +32,7 @@ module.exports = {
     throw new NotError()
   },
   getQuery(query) {
-    const { page, size, total, sort, ...findQuery } = query
+    const { page, size, total, sort, relate, ...findQuery } = query
     const pageQuery = {
       page: Number(page) || 1,
       size: Number(size),
@@ -44,7 +44,7 @@ module.exports = {
         filterQuery[k] = findQuery[k]
       }
     }
-    return { findQuery: filterQuery, pageQuery, sortQuery: sort }
+    return { findQuery: filterQuery, pageQuery, sortQuery: sort, relate }
   },
 }
 class NotError extends Error {

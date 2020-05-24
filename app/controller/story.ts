@@ -7,7 +7,7 @@ export default class extends baseController {
   }
 
   public async index() {
-    let { findQuery, pageQuery, sortQuery } = this.ctx.helper.getQuery(
+    let { findQuery, pageQuery, sortQuery, relate } = this.ctx.helper.getQuery(
       this.ctx.query
     )
     pageQuery.total = await this.model.find(findQuery).countDocuments().exec()
@@ -16,6 +16,7 @@ export default class extends baseController {
       .sort(sortQuery || '-createAt')
       .skip(pageQuery.size * (pageQuery.page - 1))
       .limit(pageQuery.size)
+      .populate(relate ? 'caseList' : '')
       .exec()
     this.success(list, pageQuery)
   }

@@ -190,9 +190,10 @@ export default class extends Service {
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'http',
+          belongTo: `${error.config.method} ${error.config.url}`,
           type: 'error',
-          title: `${error?.config?.method} ${error?.config?.url}`,
-          content: error.toString(),
+          title: error.toString(),
+          content: error,
         })
       })
 
