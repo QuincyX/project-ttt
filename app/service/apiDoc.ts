@@ -41,6 +41,10 @@ export default class extends Service {
       projectDoc._id,
       swaggerJson
     )
+    const {} = await this.updateApiModel(
+      projectDoc._id,
+      swaggerJson
+    )
     return { projectDoc, newApiGroups, oldApiGroup, oldApiItem, newApiItem }
   }
   public async updateApiGroup(projectId: string, swaggerJson: any) {
@@ -119,6 +123,37 @@ export default class extends Service {
     return { oldApiItem, newApiItem }
   }
   public async updateApiModel(projectId: string, swaggerJson: any) {
+    
+    Object.keys(swaggerJson.definitions).forEach( async key => {
+      let proJson :any= {
+        name: '',
+        description: '',
+        type: '',
+        project: '',
+        properties: []
+      }
+      proJson.name = swaggerJson.definitions[key].title ? swaggerJson.definitions[key].title : ''
+      proJson.description = swaggerJson.definitions[key].description ? swaggerJson.definitions[key].description : ''
+      proJson.project = projectId
+      proJson.type =  swaggerJson.definitions[key].type ? swaggerJson.definitions[key].type : ''
+      if(swaggerJson.definitions[key].properties){
+        Object.keys(swaggerJson.definitions[key].properties).forEach(k => {
+          let projectItem:any = {
+            name:'',
+            description:'',
+            type: '',
+            require: ''
+          }
+          projectItem.name = k
+          projectItem.description = swaggerJson.definitions[key].properties[k].description
+          projectItem.type = swaggerJson.definitions[key].properties[k].type
+          projectItem.require = ''
+          proJson.properties.push(projectItem)
+        })
+      }
+      const newDoc = await this.ctx.model.ApiModel.create(proJson)
+      console.log(newDoc);
+    })
     return projectId + swaggerJson
   }
 }
