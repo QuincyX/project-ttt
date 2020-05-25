@@ -10,7 +10,7 @@ export default class extends Service {
     const isProjectExist = await this.ctx.model.Project.exists({
       type: 'swagger',
       title: swaggerJson.info.title,
-      host: swaggerJson.host
+      host: swaggerJson.host,
     })
     let projectDoc: any
     if (isProjectExist) {
@@ -18,19 +18,19 @@ export default class extends Service {
         {
           type: 'swagger',
           title: swaggerJson.info.title,
-          host: swaggerJson.host
+          host: swaggerJson.host,
         },
         {
           type: 'swagger',
           ...swaggerJson,
-          ...swaggerJson.info
+          ...swaggerJson.info,
         }
       )
     } else {
       projectDoc = await this.ctx.model.Project.create({
         type: 'swagger',
         ...swaggerJson,
-        ...swaggerJson.info
+        ...swaggerJson.info,
       })
     }
     const { newApiGroups, oldApiGroup } = await this.updateApiGroup(
@@ -41,18 +41,25 @@ export default class extends Service {
       projectDoc._id,
       swaggerJson
     )
-    const {} = await this.updateApiModel(
+    const apiModelLength = await this.updateApiModel(
       projectDoc._id,
       swaggerJson
     )
-    return { projectDoc, newApiGroups, oldApiGroup, oldApiItem, newApiItem }
+    return {
+      projectDoc,
+      newApiGroups,
+      oldApiGroup,
+      oldApiItem,
+      newApiItem,
+      apiModelLength,
+    }
   }
   public async updateApiGroup(projectId: string, swaggerJson: any) {
     const oldApiGroup = await this.ctx.model.ApiGroup.updateMany(
       { project: projectId },
       { isEnable: false }
     )
-    swaggerJson.tags.forEach(async o => {
+    swaggerJson.tags.forEach(async (o) => {
       await this.ctx.model.ApiGroup.updateOne(
         { project: projectId, name: o.name },
         { description: o.description, isEnable: true },
@@ -60,7 +67,7 @@ export default class extends Service {
       )
     })
     const newApiGroups = await this.ctx.model.ApiGroup.find({
-      project: projectId
+      project: projectId,
     })
     return { newApiGroups, oldApiGroup }
   }
@@ -70,29 +77,29 @@ export default class extends Service {
       { isEnable: false }
     )
     const apiList = swaggerJson.paths
-    Object.keys(apiList).forEach(async key => {
+    Object.keys(apiList).forEach(async (key) => {
       const currentApi = apiList[key]
       const methodList = ['get', 'post', 'delete', 'put']
-      methodList.forEach(async method => {
+      methodList.forEach(async (method) => {
         if (currentApi[method]) {
           const apiGroupId = currentApi[method].tags.length
             ? await this.ctx.model.ApiGroup.findOne({
                 project: projectId,
-                name: currentApi[method].tags[0]
+                name: currentApi[method].tags[0],
               })
             : ''
           const queryParams = currentApi[method].parameters.filter(
-            o => o.in === 'query'
+            (o) => o.in === 'query'
           )
           const pathParams = currentApi[method].parameters.filter(
-            o => o.in === 'path'
+            (o) => o.in === 'path'
           )
           const headerParams = currentApi[method].parameters.filter(
-            o => o.in === 'header'
+            (o) => o.in === 'header'
           )
           const bodyParams = currentApi[method].parameters
-            .filter(o => o.in === 'body')
-            .map(o => {
+            .filter((o) => o.in === 'body')
+            .map((o) => {
               if (o.schema) {
                 o.model = o.schema.$ref
               }
@@ -112,7 +119,7 @@ export default class extends Service {
               header: headerParams,
               path: pathParams,
               apiGroup: apiGroupId._id,
-              project: projectId
+              project: projectId,
             },
             { upsert: true }
           )
@@ -123,37 +130,43 @@ export default class extends Service {
     return { oldApiItem, newApiItem }
   }
   public async updateApiModel(projectId: string, swaggerJson: any) {
-    
-    Object.keys(swaggerJson.definitions).forEach( async key => {
-      let proJson :any= {
+    Object.keys(swaggerJson.definitions).forEach(async (key) => {
+      let proJson: any = {
         name: '',
         description: '',
         type: '',
         project: '',
-        properties: []
+        properties: [],
       }
-      proJson.name = swaggerJson.definitions[key].title ? swaggerJson.definitions[key].title : ''
-      proJson.description = swaggerJson.definitions[key].description ? swaggerJson.definitions[key].description : ''
+      proJson.name = swaggerJson.definitions[key].title
+        ? swaggerJson.definitions[key].title
+        : ''
+      proJson.description = swaggerJson.definitions[key].description
+        ? swaggerJson.definitions[key].description
+        : ''
       proJson.project = projectId
-      proJson.type =  swaggerJson.definitions[key].type ? swaggerJson.definitions[key].type : ''
-      if(swaggerJson.definitions[key].properties){
-        Object.keys(swaggerJson.definitions[key].properties).forEach(k => {
-          let projectItem:any = {
-            name:'',
-            description:'',
+      proJson.type = swaggerJson.definitions[key].type
+        ? swaggerJson.definitions[key].type
+        : ''
+      if (swaggerJson.definitions[key].properties) {
+        Object.keys(swaggerJson.definitions[key].properties).forEach((k) => {
+          let projectItem: any = {
+            name: '',
+            description: '',
             type: '',
-            require: ''
+            require: '',
           }
           projectItem.name = k
-          projectItem.description = swaggerJson.definitions[key].properties[k].description
+          projectItem.description =
+            swaggerJson.definitions[key].properties[k].description
           projectItem.type = swaggerJson.definitions[key].properties[k].type
           projectItem.require = ''
           proJson.properties.push(projectItem)
         })
       }
       const newDoc = await this.ctx.model.ApiModel.create(proJson)
-      console.log(newDoc);
+      console.log(newDoc)
     })
-    return projectId + swaggerJson
+    return swaggerJson.definitions.length
   }
 }

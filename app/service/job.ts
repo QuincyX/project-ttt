@@ -95,7 +95,9 @@ export default class extends Service {
         storyId,
         jobId
       )
-      awaitList.push(data)
+      if (data) {
+        awaitList.push(data)
+      }
     }
     return awaitList
   }
@@ -137,6 +139,7 @@ export default class extends Service {
       storyId,
       jobId
     )
+   
 
     this.ctx.service.log.add({
       job: jobId,
@@ -187,13 +190,14 @@ export default class extends Service {
         return
       })
       .catch((error) => {
+        const content = error.toJSON() || ''
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'http',
           belongTo: `${error.config.method} ${error.config.url}`,
           type: 'error',
           title: error.toString(),
-          content: error,
+          content,
         })
       })
 
@@ -377,6 +381,6 @@ export default class extends Service {
     keywordArray.forEach((o) => {
       result = result[o]
     })
-    return result
+    return result || ''
   }
 }

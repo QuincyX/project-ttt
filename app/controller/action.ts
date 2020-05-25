@@ -6,6 +6,19 @@ export default class extends baseController {
     this.model = this.ctx.model['Action']
   }
 
+  public async addOutput() {
+    const output = this.ctx.request.body
+    const doc: any = await this.model.findById(this.ctx.params.id)
+    doc.output = doc.output || []
+    delete output._id
+    doc.output.push(output)
+    const newDoc = await doc.save()
+    if (newDoc) {
+      this.success(newDoc)
+    } else {
+      this.error('add output error')
+    }
+  }
   public async index() {
     let { findQuery, pageQuery, sortQuery } = this.ctx.helper.getQuery(
       this.ctx.query

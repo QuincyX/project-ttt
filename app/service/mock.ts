@@ -169,6 +169,7 @@ export default class extends Service {
           jobId,
           mockId: o.mock,
         })
+
         return {
           name: o.name,
           value: await this.ctx.service.mock.getMock(mockId),

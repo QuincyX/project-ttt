@@ -36,6 +36,10 @@ export default class extends baseController {
       type: 'success',
       title: 'job 创建成功',
     })
+    this.ctx.body = {
+      err: 0,
+      message: job,
+    }
     await this.ctx.service.job.triggerStory(payload.story, job._id)
     job.status = '已完成'
     await job.save()
@@ -46,10 +50,9 @@ export default class extends baseController {
       type: 'success',
       title: 'job 执行完成',
     })
-    const log = await this.ctx.model.Log.find({
+    await this.ctx.model.Log.find({
       job: job._id,
     })
-    this.success({ job, log })
   }
   public async update() {
     const payload = this.ctx.request.body
