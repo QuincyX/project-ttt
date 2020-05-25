@@ -139,7 +139,6 @@ export default class extends Service {
       storyId,
       jobId
     )
-   
 
     this.ctx.service.log.add({
       job: jobId,
@@ -190,11 +189,16 @@ export default class extends Service {
         return
       })
       .catch((error) => {
-        const content = error.toJSON() || ''
+        let content = ''
+        try {
+          content = error.toJSON() || ''
+        } catch (e) {
+          console.log(e)
+        }
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'http',
-          belongTo: `${error.config.method} ${error.config.url}`,
+          belongTo: `${error?.config?.method} ${error?.config?.url}`,
           type: 'error',
           title: error.toString(),
           content,
