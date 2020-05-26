@@ -41,7 +41,9 @@ export default class extends Service {
       let curl = `curl -X ${error?.config?.method.toUpperCase()} `
       curl += `'${error?.config?.baseURL}${error?.config?.url}' `
       for (let i in headers) {
-        curl += `-H '${i}: ${headers[i]}' `
+        if (i.toLowerCase() !== 'content-length') {
+          curl += `-H '${i}: ${headers[i]}' `
+        }
       }
       if (error?.config?.method === 'post' || error?.config?.method === 'put') {
         curl += `-d '${JSON.stringify(error?.config?.data)}'`

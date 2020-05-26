@@ -11,6 +11,7 @@ import ExportDev from '../../../app/controller/dev';
 import ExportJob from '../../../app/controller/job';
 import ExportLog from '../../../app/controller/log';
 import ExportMock from '../../../app/controller/mock';
+import ExportNotice from '../../../app/controller/notice';
 import ExportProject from '../../../app/controller/project';
 import ExportRule from '../../../app/controller/rule';
 import ExportStory from '../../../app/controller/story';
@@ -27,6 +28,7 @@ declare module 'egg' {
     job: ExportJob;
     log: ExportLog;
     mock: ExportMock;
+    notice: ExportNotice;
     project: ExportProject;
     rule: ExportRule;
     story: ExportStory;
