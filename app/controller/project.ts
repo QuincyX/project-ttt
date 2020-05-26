@@ -5,6 +5,15 @@ export default class extends baseController {
     super(app)
     this.model = this.ctx.model['Project']
   }
+
+  public async refresh() {
+    const _id = this.ctx.params.id
+    const newDoc: any = await this.model.findById(_id)
+    if (newDoc.url) {
+      await this.ctx.service.apiDoc.updateProject(newDoc.url)
+    }
+    this.success(newDoc)
+  }
   public async index() {
     let { findQuery, pageQuery, sortQuery } = this.ctx.helper.getQuery(
       this.ctx.query

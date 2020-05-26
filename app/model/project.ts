@@ -24,6 +24,9 @@ module.exports = ({ mongoose }) => {
       basePath: {
         type: String
       },
+      url: {
+        type: String
+      },
       createAt: {
         type: Date,
         default: Date.now

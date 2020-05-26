@@ -9,19 +9,18 @@ export default class extends Service {
     const swaggerJson = await this.ctx.service.apiDoc.getSwagger(url)
     const isProjectExist = await this.ctx.model.Project.exists({
       type: 'swagger',
-      title: swaggerJson.info.title,
-      host: swaggerJson.host,
+      url,
     })
     let projectDoc: any
     if (isProjectExist) {
       projectDoc = await this.ctx.model.Project.findOneAndUpdate(
         {
           type: 'swagger',
-          title: swaggerJson.info.title,
-          host: swaggerJson.host,
+          url,
         },
         {
           type: 'swagger',
+          url,
           ...swaggerJson,
           ...swaggerJson.info,
         }
@@ -29,6 +28,7 @@ export default class extends Service {
     } else {
       projectDoc = await this.ctx.model.Project.create({
         type: 'swagger',
+        url,
         ...swaggerJson,
         ...swaggerJson.info,
       })
@@ -164,8 +164,7 @@ export default class extends Service {
           proJson.properties.push(projectItem)
         })
       }
-      const newDoc = await this.ctx.model.ApiModel.create(proJson)
-      console.log(newDoc)
+      await this.ctx.model.ApiModel.create(proJson)
     })
     return swaggerJson.definitions.length
   }
