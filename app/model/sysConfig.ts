@@ -1,7 +1,12 @@
 module.exports = ({ mongoose }) => {
   return mongoose.model(
-    'Job',
+    'SysConfig',
     new mongoose.Schema({
+      _id: {
+        type: String,
+        required: true,
+        trim: true,
+      },
       name: {
         type: String,
         required: true,
@@ -10,25 +15,8 @@ module.exports = ({ mongoose }) => {
       description: {
         type: String,
       },
-      story: {
-        type: String,
-        ref: 'Story',
-      },
-      trigger: {
-        type: String,
-        enum: ['手动', '定时', '计划', 'ops', 'git'],
-      },
-      duration: {
-        type: String,
-      },
-      report: {
-        type: String,
-      },
-      type: {
-        type: String,
-      },
-      status: {
-        type: String,
+      content: {
+        type: mongoose.Schema.Types.Mixed,
       },
       isEnable: {
         type: Boolean,
@@ -39,6 +27,6 @@ module.exports = ({ mongoose }) => {
         default: Date.now,
       },
     }),
-    'Job'
+    'SysConfig'
   )
 }

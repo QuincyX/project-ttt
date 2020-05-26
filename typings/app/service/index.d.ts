@@ -13,6 +13,7 @@ import ExportJob from '../../../app/service/job';
 import ExportLog from '../../../app/service/log';
 import ExportMock from '../../../app/service/mock';
 import ExportMs from '../../../app/service/ms';
+import ExportUtil from '../../../app/service/util';
 
 declare module 'egg' {
   interface IService {
@@ -23,5 +24,6 @@ declare module 'egg' {
     log: AutoInstanceType<typeof ExportLog>;
     mock: AutoInstanceType<typeof ExportMock>;
     ms: AutoInstanceType<typeof ExportMs>;
+    util: AutoInstanceType<typeof ExportUtil>;
   }
 }

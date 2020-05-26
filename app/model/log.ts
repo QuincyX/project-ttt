@@ -5,14 +5,17 @@ module.exports = ({ mongoose }) => {
       type: { type: String },
       title: {
         type: String,
-        trim: true
+        trim: true,
       },
       content: {
-        type: mongoose.Schema.Types.Mixed
+        type: mongoose.Schema.Types.Mixed,
+      },
+      curl: {
+        type: mongoose.Schema.Types.Mixed,
       },
       job: {
         type: String,
-        ref: 'Job'
+        ref: 'Job',
       },
       belongType: {
         type: String,
@@ -24,16 +27,16 @@ module.exports = ({ mongoose }) => {
           'http',
           'rule',
           'output',
-          'sys'
-        ]
+          'sys',
+        ],
       },
       belongTo: {
-        type: String
+        type: String,
       },
       createAt: {
         type: Date,
-        default: Date.now
-      }
+        default: Date.now,
+      },
     }),
     'Log'
   )

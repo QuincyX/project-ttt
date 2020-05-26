@@ -3,30 +3,11 @@ import baseController from '../base/controller'
 export default class extends baseController {
   constructor(app) {
     super(app)
-    this.model = this.ctx.model['Story']
+    this.model = this.ctx.model['SysConfig']
   }
-
   public async index() {
-    let { findQuery, pageQuery, sortQuery, relate } = this.ctx.helper.getQuery(
-      this.ctx.query
-    )
-    if (pageQuery.size === 0) {
-      const list = await this.model
-        .find(findQuery)
-        .sort(sortQuery || '-createAt')
-        .exec()
-      this.success(list)
-    } else {
-      pageQuery.total = await this.model.find(findQuery).countDocuments().exec()
-      const list = await this.model
-        .find(findQuery)
-        .sort(sortQuery || '-createAt')
-        .skip(pageQuery.size * (pageQuery.page - 1))
-        .limit(pageQuery.size)
-        .populate(relate ? 'caseList' : '')
-        .exec()
-      this.success(list, pageQuery)
-    }
+    const list = await this.model.find().sort('-createAt').exec()
+    this.success(list)
   }
   public async show() {
     const doc = await this.model.findById(this.ctx.params.id)

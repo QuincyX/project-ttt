@@ -26,21 +26,21 @@ export default class extends Service {
     )
     instance.interceptors.response.use(
       (response: AxiosResponse) => {
-        // this.ctx.service.log.add({
-        //   belongType: 'http',
-        //   belongTo: `${response.config.method} ${response.config.url}`,
-        //   type: 'success',
-        //   content: `status ${response.status}`,
-        // })
-        return Promise.resolve(response)
+        if (response.data.code !== 0) {
+          return Promise.reject({
+            code: response.data.code,
+            message: response.data.message,
+            config: response.config,
+            response,
+            toJSON: () => {
+              return JSON.stringify(response.data)
+            },
+          })
+        } else {
+          return Promise.resolve(response)
+        }
       },
       (error: AxiosError) => {
-        // this.ctx.service.log.add({
-        //   belongType: 'http',
-        //   belongTo: `${error.config.method} ${error.config.url}`,
-        //   type: 'error',
-        //   content: error.toJSON(),
-        // })
         return Promise.reject(error)
       }
     )

@@ -14,6 +14,7 @@ import ExportMock from '../../../app/controller/mock';
 import ExportProject from '../../../app/controller/project';
 import ExportRule from '../../../app/controller/rule';
 import ExportStory from '../../../app/controller/story';
+import ExportSysConfig from '../../../app/controller/sysConfig';
 
 declare module 'egg' {
   interface IController {
@@ -29,5 +30,6 @@ declare module 'egg' {
     project: ExportProject;
     rule: ExportRule;
     story: ExportStory;
+    sysConfig: ExportSysConfig;
   }
 }

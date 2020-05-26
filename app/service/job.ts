@@ -23,7 +23,7 @@ export default class extends Service {
           belongType: 'story',
           belongTo: storyId,
           type: 'error',
-          title: 'caseList 为空',
+          title: `${story.name} 的 caseList 为空`,
         })
         reject('caseList 为空')
       }
@@ -32,17 +32,21 @@ export default class extends Service {
         belongType: 'story',
         belongTo: storyId,
         type: 'success',
-        title: '开始讲故事',
+        title: `开始讲故事: ${story.name}`,
+        content: story.description,
       })
+      const startTime = Date.now()
       await this.ctx.service.job.triggerCaseList(story.caseList, storyId, jobId)
+      const duration = this.ctx.service.util.formatTime(Date.now() - startTime)
       this.ctx.service.log.add({
         job: jobId,
         belongType: 'story',
         belongTo: storyId,
         type: 'success',
-        title: '故事讲完了',
+        title: `故事讲完了: ${story.name}`,
+        content: `耗时：${duration}`,
       })
-      resolve()
+      resolve({ duration })
     })
   }
   public async triggerCaseList(
@@ -77,7 +81,7 @@ export default class extends Service {
       belongType: 'case',
       belongTo: caseDoc._id,
       type: 'success',
-      title: '执行完成 case',
+      title: `执行完成 case: ${caseDoc.name}`,
     })
     return
   }
@@ -176,33 +180,17 @@ export default class extends Service {
         })
         await this.ctx.service.job.validateRuleList(actionDoc, response, jobId)
         await this.ctx.service.job.handleOutputList(actionDoc, response, jobId)
-        return response
-      })
-      .then(() => {
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'action',
           belongTo: actionDoc._id,
           type: 'success',
-          title: '执行完成 action',
+          title: `执行完成 action: ${actionDoc.name}`,
         })
-        return
+        return response
       })
       .catch((error) => {
-        let content = ''
-        try {
-          content = error.toJSON() || ''
-        } catch (e) {
-          console.log(e)
-        }
-        this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'http',
-          belongTo: `${error?.config?.method} ${error?.config?.url}`,
-          type: 'error',
-          title: error.toString(),
-          content,
-        })
+        this.ctx.service.log.addHttpError(error, jobId)
       })
 
     return result
@@ -246,7 +234,9 @@ export default class extends Service {
           belongTo: action._id,
           type: 'error',
           title: `validate => ${rule.name} 相等`,
-          content: `${rule.name} 的值 ${targetValue} 与 ${ruleDoc.standard} 对比不相等`,
+          content: `${rule.name} 的值 ${targetValue || 'undefined'} 与 ${
+            ruleDoc.standard
+          } 对比不相等`,
         })
       } else {
         return

@@ -5,4 +5,5 @@ export default (app: Application) => {
 
   router.redirect('/', '/ping')
   router.get('/ping', controller.dev.ping)
+  router.resources('config', '/config', controller.sysConfig)
 }

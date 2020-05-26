@@ -13,6 +13,7 @@ import ExportMock from '../../../app/model/mock';
 import ExportProject from '../../../app/model/project';
 import ExportRule from '../../../app/model/rule';
 import ExportStory from '../../../app/model/story';
+import ExportSysConfig from '../../../app/model/sysConfig';
 
 declare module 'egg' {
   interface IModel {
@@ -27,5 +28,6 @@ declare module 'egg' {
     Project: ReturnType<typeof ExportProject>;
     Rule: ReturnType<typeof ExportRule>;
     Story: ReturnType<typeof ExportStory>;
+    SysConfig: ReturnType<typeof ExportSysConfig>;
   }
 }
