@@ -63,6 +63,7 @@ export default class extends Service {
   }
   public async triggerCase(caseId: string, storyId: string, jobId: string) {
     const caseDoc = await this.ctx.model.Case.findById(caseId)
+    const startTime = Date.now()
     this.ctx.service.log.add({
       job: jobId,
       belongType: 'case',
@@ -83,7 +84,8 @@ export default class extends Service {
       type: 'success',
       title: `执行完成 case: ${caseDoc.name}`,
     })
-    return
+    const duration = this.ctx.service.util.formatTime(Date.now() - startTime)
+    return { duration }
   }
   public async triggerActionList(
     actionList: string[],
@@ -177,9 +179,15 @@ export default class extends Service {
             },
             res: response.data,
           },
+          curl: await this.ctx.service.log.getCurl(response),
         })
         await this.ctx.service.job.validateRuleList(actionDoc, response, jobId)
-        await this.ctx.service.job.handleOutputList(actionDoc, response, jobId)
+        await this.ctx.service.job.handleOutputList(
+          actionDoc,
+          response,
+          caseId,
+          jobId
+        )
         this.ctx.service.log.add({
           job: jobId,
           belongType: 'action',
@@ -317,7 +325,12 @@ export default class extends Service {
       })
     }
   }
-  public async handleOutputList(action: any, response: any, jobId: string) {
+  public async handleOutputList(
+    action: any,
+    response: any,
+    caseId: string,
+    jobId: string
+  ) {
     if (action.output.length) {
       this.ctx.service.log.add({
         job: jobId,
@@ -333,6 +346,7 @@ export default class extends Service {
         o,
         action,
         response,
+        caseId,
         jobId
       )
       awaitList.push(data)
@@ -343,19 +357,20 @@ export default class extends Service {
     output: any,
     action: any,
     response: any,
+    caseId: string,
     jobId: string
   ) {
     const newMock = await this.ctx.model.Mock.updateOne(
       {
         name: output.name,
         type: output.targetType,
-        target: output.target,
+        target: output.targetType === 'case' ? caseId : output.target,
       },
       {
         description: `由 action ${action._id} 自动生成的数据规则`,
         name: output.name,
         type: output.targetType,
-        target: output.target,
+        target: output.targetType === 'case' ? caseId : output.target,
         list: [this.ctx.service.job.getResponseValue(response, output.source)],
       },
       { upsert: true }
@@ -366,6 +381,7 @@ export default class extends Service {
       belongTo: action._id,
       type: 'success',
       title: `执行成功 output ${output.name}`,
+      content: newMock.list[0],
     })
     return newMock
   }

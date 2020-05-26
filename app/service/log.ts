@@ -36,7 +36,7 @@ export default class extends Service {
     this.ctx.service.log.add(log)
   }
   public async getCurl(error) {
-    if (error.response) {
+    if (error) {
       const headers = error?.config?.headers || {}
       let curl = `curl -X ${error?.config?.method.toUpperCase()} `
       curl += `'${error?.config?.baseURL}${error?.config?.url}' `

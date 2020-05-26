@@ -129,27 +129,39 @@ export default class extends Service {
     storyId: string,
     jobId: string
   ) {
-    const list = await Promise.all(
-      bodyList.map(async (o) => {
-        const mockId = await this.ctx.service.mock.getMockId({
-          name: o.name,
-          actionId,
-          caseId,
-          storyId,
-          jobId,
-          mockId: o.mock,
-        })
-        return {
-          name: o.name,
-          value: await this.ctx.service.mock.getMock(mockId),
-        }
+    if (bodyList.length === 1) {
+      const mockId = await this.ctx.service.mock.getMockId({
+        name: bodyList[0].name,
+        actionId,
+        caseId,
+        storyId,
+        jobId,
+        mockId: bodyList[0].mock,
       })
-    )
-    const result = {}
-    list.forEach((o) => {
-      result[o.name] = o.value
-    })
-    return result
+      return await this.ctx.service.mock.getMock(mockId)
+    } else {
+      const list = await Promise.all(
+        bodyList.map(async (o) => {
+          const mockId = await this.ctx.service.mock.getMockId({
+            name: o.name,
+            actionId,
+            caseId,
+            storyId,
+            jobId,
+            mockId: o.mock,
+          })
+          return {
+            name: o.name,
+            value: await this.ctx.service.mock.getMock(mockId),
+          }
+        })
+      )
+      const result = {}
+      list.forEach((o) => {
+        result[o.name] = o.value
+      })
+      return result
+    }
   }
   public async getPath(
     sourceUrl: string,

@@ -10,9 +10,20 @@ module.exports = ({ mongoose }) => {
       description: {
         type: String,
       },
+      case: {
+        type: String,
+        ref: 'Case',
+      },
       story: {
         type: String,
         ref: 'Story',
+      },
+      targetType: {
+        type: String,
+        enum: ['story', 'case', 'action', 'manual'],
+      },
+      targetId: {
+        type: String,
       },
       trigger: {
         type: String,

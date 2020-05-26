@@ -14,6 +14,7 @@ export default class extends Service {
       withCredentials: false,
       headers: {
         'user-agent': 'project ttt',
+        'Content-Type': 'application/json;charset=UTF-8',
       },
     })
     instance.interceptors.request.use(
@@ -29,7 +30,7 @@ export default class extends Service {
         if (response.data.code !== 0) {
           return Promise.reject({
             code: response.data.code,
-            message: response.data.message,
+            message: response.data.message.slice(0, 200),
             config: response.config,
             response,
             toJSON: () => {

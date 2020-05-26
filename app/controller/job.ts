@@ -51,10 +51,21 @@ export default class extends baseController {
       message: job,
     }
     this.ctx.res.end()
-    const { duration }: any = await this.ctx.service.job.triggerStory(
-      payload.story,
-      job._id
-    )
+    let duration: any
+    if (payload.targetType === 'story') {
+      const storyRes: any = await this.ctx.service.job.triggerStory(
+        payload.targetId,
+        job._id
+      )
+      duration = storyRes.duration
+    } else if (payload.targetType === 'case') {
+      const caseRes: any = await this.ctx.service.job.triggerCase(
+        payload.targetId,
+        '',
+        job._id
+      )
+      duration = caseRes.duration
+    }
     job.status = '已完成'
     job.duration = duration
     await job.save()
