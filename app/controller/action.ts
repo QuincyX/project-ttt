@@ -6,6 +6,14 @@ export default class extends baseController {
     this.model = this.ctx.model['Action']
   }
 
+  public async getResponse() {
+    const actionDoc: any = await this.model.findById(this.ctx.params.id)
+    const apiDoc: any = await this.ctx.model.ApiItem.findById(actionDoc.api)
+    const apiModelDoc: any = await this.ctx.model.ApiModel.findById(
+      apiDoc.apiModel
+    )
+    this.success(apiModelDoc)
+  }
   public async addOutput() {
     const output = this.ctx.request.body
     const doc: any = await this.model.findById(this.ctx.params.id)
