@@ -32,7 +32,7 @@ export default class extends Service {
         belongType: 'story',
         belongTo: storyId,
         type: 'success',
-        title: `开始讲故事: ${story.name}`,
+        title: `info => 开始讲故事: ${story.name}`,
         content: story.description,
       })
       const startTime = Date.now()
@@ -69,7 +69,7 @@ export default class extends Service {
       belongType: 'case',
       belongTo: caseDoc._id,
       type: 'success',
-      title: '开始执行 case',
+      title: `info => 开始执行 case ${caseDoc.name}`,
     })
     await this.ctx.service.job.triggerActionList(
       caseDoc.actionList,
@@ -151,7 +151,7 @@ export default class extends Service {
       belongType: 'action',
       belongTo: actionDoc._id,
       type: 'success',
-      title: '开始执行 action',
+      title: `info => 开始执行 action ${actionDoc.name}`,
     })
     const result = await this.ctx.service.http
       .axios({
@@ -168,8 +168,8 @@ export default class extends Service {
           belongType: 'http',
           belongTo: `${response.config.method} ${response.config.url}`,
           type: 'success',
-          title: `status: ${response.status}`,
-          content: {
+          title: `http => status: ${response.status}`,
+          content: response.data || {
             req: {
               method: response.config.method,
               url: response.config.url,
@@ -193,7 +193,7 @@ export default class extends Service {
           belongType: 'action',
           belongTo: actionDoc._id,
           type: 'success',
-          title: `执行完成 action: ${actionDoc.name}`,
+          title: `info => 执行完成 action: ${actionDoc.name}`,
         })
         return response
       })
@@ -204,13 +204,13 @@ export default class extends Service {
     return result
   }
   public async validateRuleList(action: any, response: any, jobId: string) {
-    this.ctx.service.log.add({
-      job: jobId,
-      belongType: 'action',
-      belongTo: action._id,
-      type: 'success',
-      title: '开始执行 action rule validate',
-    })
+    // this.ctx.service.log.add({
+    //   job: jobId,
+    //   belongType: 'action',
+    //   belongTo: action._id,
+    //   type: 'success',
+    //   title: '开始执行 action rule validate',
+    // })
     let awaitList: Array<any> = []
     for (let o of action.rule) {
       let data: any = await this.ctx.service.job.validateRule(
@@ -234,79 +234,104 @@ export default class extends Service {
       response,
       rule.name
     )
+    let logRaw = {
+      job: jobId,
+      belongType: 'action',
+      belongTo: action._id,
+    }
     if (ruleDoc.type === '相等') {
       if (targetValue != ruleDoc.standard) {
         this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'action',
-          belongTo: action._id,
+          ...logRaw,
           type: 'error',
-          title: `validate => ${rule.name} 相等`,
+          title: `validate => ${rule.name} 不相等`,
           content: `${rule.name} 的值 ${targetValue || 'undefined'} 与 ${
             ruleDoc.standard
           } 对比不相等`,
         })
       } else {
+        this.ctx.service.log.add({
+          ...logRaw,
+          type: 'success',
+          title: `validate => ${rule.name} 相等`,
+          content: `${rule.name} 的值 ${targetValue || 'undefined'} 与 ${
+            ruleDoc.standard
+          } 对比相等`,
+        })
         return
       }
     } else if (ruleDoc.type === '存在') {
       if (typeof targetValue === 'undefined') {
         this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'action',
-          belongTo: action._id,
+          ...logRaw,
           type: 'error',
-          title: `validate => ${rule.name} 存在`,
+          title: `validate => ${rule.name} 不存在`,
           content: `${targetValue} 值不存在`,
         })
       } else {
+        this.ctx.service.log.add({
+          ...logRaw,
+          type: 'success',
+          title: `validate => ${rule.name} 存在`,
+          content: `${targetValue} 值存在`,
+        })
         return
       }
     } else if (ruleDoc.type === '包含') {
       if (!targetValue.includes(ruleDoc.standard)) {
         this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'action',
-          belongTo: action._id,
+          ...logRaw,
           type: 'error',
           title: `validate => ${rule.name} 包含`,
           content: `${rule.name} 的值 ${targetValue} 不包含 ${ruleDoc.standard}`,
         })
       } else {
+        this.ctx.service.log.add({
+          ...logRaw,
+          type: 'success',
+          title: `validate => ${rule.name} 包含`,
+          content: `${rule.name} 的值 ${targetValue} 包含 ${ruleDoc.standard}`,
+        })
         return
       }
     } else if (ruleDoc.type === '属于') {
       if (!ruleDoc.standard.includes(targetValue)) {
         this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'action',
-          belongTo: action._id,
+          ...logRaw,
           type: 'error',
           title: `validate => ${rule.name} 属于`,
           content: `${rule.name} 的值 ${targetValue} 不属于 ${ruleDoc.standard}`,
         })
       } else {
+        this.ctx.service.log.add({
+          ...logRaw,
+          type: 'success',
+          title: `validate => ${rule.name} 属于`,
+          content: `${rule.name} 的值 ${targetValue} 属于 ${ruleDoc.standard}`,
+        })
         return
       }
     } else if (ruleDoc.type === '长度大于') {
       if (targetValue.length <= ruleDoc.standard) {
         this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'action',
-          belongTo: action._id,
+          ...logRaw,
           type: 'error',
           title: `validate => ${rule.name} 长度大于`,
           content: `${rule.name} 的长度 ${targetValue.length} 不大于 ${ruleDoc.standard}`,
         })
       } else {
+        this.ctx.service.log.add({
+          ...logRaw,
+          type: 'success',
+          title: `validate => ${rule.name} 长度大于`,
+          content: `${rule.name} 的长度 ${targetValue.length} 大于 ${ruleDoc.standard}`,
+        })
         return
       }
     } else if (ruleDoc.type === '类型') {
       if (typeof targetValue === ruleDoc.standard) {
         this.ctx.service.log.add({
-          job: jobId,
-          belongType: 'action',
-          belongTo: action._id,
+          ...logRaw,
           type: 'error',
           title: `validate => ${rule.name} 类型`,
           content: `${rule.name} 的类型 ${typeof targetValue} 不等于 ${
@@ -314,6 +339,14 @@ export default class extends Service {
           }`,
         })
       } else {
+        this.ctx.service.log.add({
+          ...logRaw,
+          type: 'success',
+          title: `validate => ${rule.name} 类型`,
+          content: `${rule.name} 的类型 ${typeof targetValue} 等于 ${
+            ruleDoc.standard
+          }`,
+        })
         return
       }
     } else {
@@ -337,7 +370,7 @@ export default class extends Service {
         belongType: 'action',
         belongTo: action._id,
         type: 'success',
-        title: `开始执行 output handle ,共 ${action.output.length} 个`,
+        title: `info => 开始执行 output handle ,共 ${action.output.length} 个`,
       })
     }
     let awaitList: Array<any> = []
@@ -386,11 +419,15 @@ export default class extends Service {
     return newMock
   }
   public getResponseValue(response: any, keyName: string) {
-    let keywordArray = keyName.split('.')
-    let result = response
-    keywordArray.forEach((o) => {
-      result = result[o]
-    })
-    return result || ''
+    try {
+      let keywordArray = keyName.split('.')
+      let result = response
+      keywordArray.forEach((o) => {
+        result = result[o]
+      })
+      return result
+    } catch (err) {
+      return ''
+    }
   }
 }

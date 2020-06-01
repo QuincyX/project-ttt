@@ -59,6 +59,8 @@ export default class extends baseController {
   public async destroy() {
     const _id = this.ctx.params.id
     const delDoc = await this.model.findByIdAndDelete(_id)
+    await this.ctx.model.ApiGroup.deleteMany({ project: _id })
+    await this.ctx.model.ApiItem.deleteMany({ project: _id })
     this.success(delDoc)
   }
 }
